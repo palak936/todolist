@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TO DO LIST</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #007bff;
+        }
+        
+        #tasklist {
+            width: 60%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        #btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        #outDiv {
+            text-align: left;
+            margin-top: 20px;
+        }
+        
+        div {
+            margin: 5px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        span {
+            font-size: 18px;
+            margin-right: 10px;
+        }
+        
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        
+        button {
+            font-size: 16px;
+            background-color: #ff3333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #cc0000;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>TO DO LIST</h1>
+    <input id="tasklist" placeholder="Enter a task...">
+    <button id="btn">Add</button>
+    <div id="outDiv"></div>
+    <script>
+        let tasklist = document.querySelector("#tasklist");
+        let btn = document.querySelector("#btn");
+        let outdiv = document.querySelector("#outDiv");
+        let task = [];
+        let count = 1;
+
+        btn.addEventListener("click", function() {
+            if (tasklist.value.trim() === '') {
+                alert("Input box is empty");
+                return;
+            }
+
+            let obj = {
+                id: count,
+                title: tasklist.value,
+                status: 'pending'
+            };
+
+            task.push(obj);
+            count++;
+            addToUI(obj);
+            storeLocalStorage();
+            tasklist.value = '';
+        });
+
+        function addToUI(obj) {
+            let title = obj.title;
+            let div = document.createElement("div");
+            let span = document.createElement("span");
+            span.innerHTML = title;
+
+            let chk = document.createElement("input");
+            chk.setAttribute("type", "checkbox");
+
+            if (obj.status == 'completed') {
+                chk.checked = true;
+                span.style.textDecoration = "line-through";
+            }
+
+            chk.addEventListener("click", function() {
+                if (chk.checked == true) {
+                    span.style.textDecoration = "line-through";
+                    obj.status = 'completed';
+                } else {
+                    span.style.textDecoration = "none";
+                    obj.status = 'pending';
+                }
+                storeLocalStorage();
+            });
+
+            let delbtn = document.createElement("button");
+            delbtn.innerHTML = "Delete";
+            delbtn.addEventListener("click", function() {
+                task = task.filter(function(item) {
+                    return item.id != obj.id;
+                });
+                div.remove();
+                storeLocalStorage();
+            });
+
+            div.appendChild(span);
+            div.appendChild(chk);
+            div.appendChild(delbtn);
+            outdiv.appendChild(div);
+        }
+
+        function storeLocalStorage() {
+            localStorage.setItem("mytask", JSON.stringify(task));
+        }
+
+        function getLocalStorage() {
+            if (localStorage.getItem("mytask")) {
+                task = JSON.parse(localStorage.getItem("mytask"));
+            }
+            task.forEach(function(item) {
+                addToUI(item);
+            });
+        }
+
+        getLocalStorage();
+    </script>
+</body>
+
+</html>
